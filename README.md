@@ -10,26 +10,44 @@ https://blazor.app1.es/OpenAI
 
 使用方法:
 
-1.nuget包
+1. nuget包
 
-```BootstrapBlazor.OpenAI.GPT3```
+    ```
+    BootstrapBlazor.OpenAI.GPT3
+    ```
 
-2._Imports.razor 文件 或者页面添加 添加组件库引用
+2. _Imports.razor 文件 或者页面添加 添加组件库引用
 
-```@using BootstrapBlazor.Components```
+    ```
+    @using BootstrapBlazor.Components
+    ```
 
+3. Program.cs 文件添加
 
-3.razor页面
-```
-<OpenAiGPT3 />
-```
+    ```
+    builder.Services.AddTransient<OpenAiBBService>();
+    ```
+
+4. Key
+
+    `appsettings.json`或者其他配置文件添加配置
+
+    ```
+    "OpenAIKey": "OpenAIKey"
+    ```
+
+5. Razor页面
+
+    ```
+    <OpenAiGPT3 />
+    ```
 
 4.参数说明 
 
 
 |  参数   | 说明  | 默认值  | 
 |  ----  | ----  | ----  | 
-| OpenAIKey  | 一般不需要特别指定 | Config["OpenAIKey"] | 
+| OpenAIKey  | 默认使用配置文件值 | null | 
 
 ---
  
