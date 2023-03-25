@@ -111,11 +111,11 @@ public partial class OpenAiGPT3 : IAsyncDisposable
                 await UpdateUI();
                 res = await OpenaiService.Completions(val);
                 break;
-            case EnumOpenaiModdel.CompletionsStream:
-                ResultText += "[Completions Stream]" + Environment.NewLine;
-                await UpdateUI();
-                res = await OpenaiService.CompletionsStream(val);
-                break;
+            //case EnumOpenaiModdel.CompletionsStream:
+            //    ResultText += "[Completions Stream]" + Environment.NewLine;
+            //    await UpdateUI();
+            //    res = await OpenaiService.CompletionsStream(val);
+            //    break;
             case EnumOpenaiModdel.DALLE:
                 ResultText += "[DALL·E]" + Environment.NewLine;
                 await UpdateUI();
@@ -166,10 +166,11 @@ public partial class OpenAiGPT3 : IAsyncDisposable
 
     private Task OnEscAsync(string val)
     {
+        InputText = string.Empty;
         return Task.CompletedTask;
     }
 
-    private Task OnClear()
+    private  Task OnClear()
     {
         ResultText=string.Empty;
         InputText=string.Empty;

@@ -304,11 +304,11 @@ public enum EnumOpenaiModdel
     [Display(Name = "Completions")]
     Completions,
 
-    /// <summary>
-    /// Completions Stream
-    /// </summary>
-    [Display(Name = "Completions Stream")]
-    CompletionsStream,
+    ///// <summary>
+    ///// Completions Stream
+    ///// </summary>
+    //[Display(Name = "Completions Stream")]
+    //CompletionsStream,
 
     /// <summary>
     /// DALL-E
