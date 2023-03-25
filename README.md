@@ -1,5 +1,6 @@
 # Blazor OpenAI GPT3 组件  
 
+![image](https://user-images.githubusercontent.com/8428709/227728026-5c091b07-0944-4618-af38-a47d301bc2af.png)
 
 示例:
 
