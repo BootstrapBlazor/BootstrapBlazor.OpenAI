@@ -13,14 +13,13 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Xml.Linq;
 
-namespace BootstrapBlazor.Components;
+namespace BootstrapBlazor.OpenAI.GPT3.Services;
 
 /// <summary>
 /// OpenAI API 使用 GPT-3 预训练生成式转换器
 /// </summary>
-public class OpenAiBBService
+public class OpenAiClientService
 {
-    [NotNull]
     public OpenAIService? OpenAiService;
 
     //
@@ -33,7 +32,7 @@ public class OpenAiBBService
     //     service.
     public string? OpenAIKey { get; set; }
 
-    public OpenAiBBService(IConfiguration? Config)
+    public OpenAiClientService(IConfiguration? Config)
     {
         OpenAIKey = OpenAIKey ?? Config!["OpenAIKey"];
         if (OpenAIKey != null)
@@ -59,7 +58,7 @@ public class OpenAiBBService
     /// </summary>
     /// <remarks>ChatGPT，全称聊天生成预训练转换器（英語：Chat Generative Pre-trained Transformer），是OpenAI开发的人工智能聊天机器人程序，于2022年11月推出。 该程序使用基于GPT-3.5架构的大型语言模型並以强化学习训练</remarks>
     /// <returns></returns>
-    public async Task<string?> ChatGPT(string prompt = "曾几何时")
+    public async Task<string?> ChatGPT(string prompt = "曾几何时", int? MaxTokens = null, float? Temperature = null)
     {
         //ChatGPT Sample
 
@@ -98,8 +97,8 @@ public class OpenAiBBService
                 ChatMessage.FromUser(prompt)
             },
             Model = Models.ChatGpt3_5Turbo,
-            MaxTokens = 300,//完成时生成的最大令牌数
-            Temperature = null, //浮点数，控制模型的输出的多样性。值越高，输出越多样化。值越低，输出越简单。默认值为 0.5。
+            MaxTokens = MaxTokens ?? 1000,//完成时生成的最大令牌数
+            Temperature = Temperature, //浮点数，控制模型的输出的多样性。值越高，输出越多样化。值越低，输出越简单。默认值为 0.5。
             N = 1, //整数，生成的候选项的数量。默认值为 1。
         });
         if (completionResult.Successful)
@@ -116,7 +115,7 @@ public class OpenAiBBService
     /// <param name="prompt"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<string?> Completions(string prompt = "曾几何时")
+    public async Task<string?> Completions(string prompt = "曾几何时", int? MaxTokens = null, float? Temperature = null)
     {
         //Completions Sample
 
@@ -128,9 +127,9 @@ public class OpenAiBBService
         {
             Prompt = prompt,
             Model = Models.TextDavinciV3,
-            MaxTokens = 300, //完成时生成的最大令牌数。
-            Temperature = null, //浮点数，控制模型的输出的多样性。值越高，输出越多样化。值越低，输出越简单。默认值为 0.5。
-            N=1, //整数，生成的候选项的数量。默认值为 1。
+            MaxTokens = MaxTokens ?? 1000, //完成时生成的最大令牌数。
+            Temperature = Temperature, //浮点数，控制模型的输出的多样性。值越高，输出越多样化。值越低，输出越简单。默认值为 0.5。
+            N = 1, //整数，生成的候选项的数量。默认值为 1。
         });
 
         if (completionResult.Successful)
@@ -155,7 +154,7 @@ public class OpenAiBBService
     /// <param name="prompt"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<string?> CompletionsStream(string prompt = "曾几何时")
+    public async Task<string?> CompletionsStream(string prompt = "曾几何时", int? MaxTokens = null, float? Temperature = null)
     {
         //Completions Stream Sample
 
@@ -166,7 +165,8 @@ public class OpenAiBBService
         var completionResult = OpenAiService.Completions.CreateCompletionAsStream(new CompletionCreateRequest()
         {
             Prompt = prompt,
-            MaxTokens = 300
+            MaxTokens = MaxTokens ?? 1000,
+            Temperature = Temperature,
         }, Models.Davinci);
 
         await foreach (var completion in completionResult)
@@ -286,36 +286,6 @@ public class OpenAiBBService
 
 }
 
-
-/// <summary>
-///
-/// </summary>
-public enum EnumOpenaiModdel
-{
-    /// <summary>
-    ///ChatGPT
-    /// </summary>
-    [Display(Name = "ChatGPT")]
-    ChatGpt,
-
-    /// <summary>
-    ///Completions
-    /// </summary>
-    [Display(Name = "Completions")]
-    Completions,
-
-    ///// <summary>
-    ///// Completions Stream
-    ///// </summary>
-    //[Display(Name = "Completions Stream")]
-    //CompletionsStream,
-
-    /// <summary>
-    /// DALL-E
-    /// </summary>
-    [Display(Name = "DALL-E")]
-    DALLE,
-}
 
 
 //CodeGPT 扩展还有几个设置，可以根据个人喜好进行配置。它们包括：

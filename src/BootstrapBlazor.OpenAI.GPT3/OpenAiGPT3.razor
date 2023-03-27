@@ -12,16 +12,28 @@
         @if (ResultImage is not null)
         {
             <p>
-                <img src="@ResultImage" style="max-width:520px;max-height:520px;overflow :scroll;" />
+                <img src="@ResultImage" style="max-width:80%;max-height:520px;overflow :scroll;" />
             </p>
         }
     </div>
     <div class="col-12">
         <BootstrapInputGroup>
             <BootstrapInput IsAutoFocus ShowLabel="true" TValue="string" PlaceHolder="@PlaceHolderText" OnEnterAsync="OnEnterAsync" OnEscAsync="OnEscAsync" @bind-Value="InputText" />
+            <Button Text="Enter" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
             <Button Text="Clear" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
         </BootstrapInputGroup>
     </div>
+
+    @if (ShowOptions)
+    {
+        <div class="col-6">
+            <Select Color="Color.Primary" Items="ItemsMaxToken" @bind-Value="@SelectedMaxTokens" ShowLabel="true" DisplayText="MaxToken 生成的最大令牌数" />
+        </div>
+        <div class="col-6">
+            <Select Color="Color.Primary" Items="ItemsTemperature" @bind-Value="@SelectedTemperature" ShowLabel="true" DisplayText="Temperature 模型的输出的多样性" />
+        </div>
+    }
+
 </div>
 
 @if (!string.IsNullOrEmpty(ErrorMessage))

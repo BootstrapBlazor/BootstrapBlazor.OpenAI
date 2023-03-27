@@ -4,6 +4,7 @@
 // e-mail:zhouchuanglin@gmail.com 
 // **********************************
 
+using BootstrapBlazor.OpenAI.GPT3.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Microsoft.JSInterop;
@@ -34,7 +35,7 @@ public partial class OpenAiGPT3 : IAsyncDisposable
 
     [NotNull]
     [Inject]
-     private OpenAiBBService? OpenaiService { get; set; }
+     private OpenAiClientService? OpenaiService { get; set; }
 
     /// <summary>
     /// 获得/设置 查询关键字
@@ -55,10 +56,50 @@ public partial class OpenAiGPT3 : IAsyncDisposable
     private int Lines { get; set; } = 0;
 
     [NotNull]
-    private EnumOpenaiModdel? SelectedEnumItem { get; set; }
+    private EnumOpenAiModel? SelectedEnumItem { get; set; }
+
+    [NotNull]
+    private IEnumerable<SelectedItem> ItemsMaxToken { get; set; }= new [] {
+        new SelectedItem("100", "100"),
+        new SelectedItem("300", "300"),
+        new SelectedItem("500", "500"),
+        new SelectedItem("2000", "2000"),
+        new SelectedItem("3000", "3000"),
+        new SelectedItem("4000", "4000"),
+    };
+
+    int SelectedMaxTokens { get; set; } = 500;
+
+    [NotNull]
+    private IEnumerable<SelectedItem> ItemsTemperature { get; set; }= new [] {
+        new SelectedItem("0.1", "0.1"),
+        new SelectedItem("0.2", "0.2"),
+        new SelectedItem("0.5", "0.5"),
+        new SelectedItem("0.6", "0.6"),
+        new SelectedItem("0.7", "0.7"),
+        new SelectedItem("0.8", "0.8"),
+        new SelectedItem("0.9", "0.9"),
+    };
+
+    float SelectedTemperature { get; set; } = 0.5f;
 
     [Parameter]
     public string? OpenAIKey { get; set; }
+
+    [Parameter]
+    public bool ShowOptions { get; set; } = true;
+
+    /// <summary>
+    /// 完成时生成的最大令牌数。默认值为 500<para></para>参数为空, 内置 SelectedMaxTokens 优先
+    /// </summary>
+    [Parameter]
+    public int? MaxTokens { get; set; }
+
+    /// <summary>
+    /// 浮点数，控制模型的输出的多样性。值越高，输出越多样化。值越低，输出越简单。默认值为 0.5<para></para>参数为空, 内置 SelectedTemperature 优先
+    /// </summary>
+    [Parameter]
+    public float? Temperature { get; set; } 
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -80,9 +121,9 @@ public partial class OpenAiGPT3 : IAsyncDisposable
         }
     }
 
-
-    private async Task OnEnterAsync(string val)
+    private async Task OnEnter()
     {
+        var val = InputText;
         if (string.IsNullOrWhiteSpace (val))
         {
             return;
@@ -104,19 +145,19 @@ public partial class OpenAiGPT3 : IAsyncDisposable
             default:
                 ResultText += "[ChatGpt]" + Environment.NewLine;
                 await UpdateUI();
-                res = await OpenaiService.ChatGPT(val);
+                res = await OpenaiService.ChatGPT(val, MaxTokens?? SelectedMaxTokens, Temperature?? SelectedTemperature);
                 break;
-            case EnumOpenaiModdel.Completions:
+            case EnumOpenAiModel.Completions:
                 ResultText += "[Completions]" + Environment.NewLine;
                 await UpdateUI();
-                res = await OpenaiService.Completions(val);
+                res = await OpenaiService.Completions(val, MaxTokens ?? SelectedMaxTokens, Temperature?? SelectedTemperature);
                 break;
             //case EnumOpenaiModdel.CompletionsStream:
             //    ResultText += "[Completions Stream]" + Environment.NewLine;
             //    await UpdateUI();
             //    res = await OpenaiService.CompletionsStream(val);
             //    break;
-            case EnumOpenaiModdel.DALLE:
+            case EnumOpenAiModel.DALLE:
                 ResultText += "[DALL·E]" + Environment.NewLine;
                 await UpdateUI();
                 res = await OpenaiService.DALLE_CreateImage(val);
@@ -146,9 +187,18 @@ public partial class OpenAiGPT3 : IAsyncDisposable
             }
             ResultText+=(Environment.NewLine);
             InputText = string.Empty;
-            await UpdateUI();
             PlaceHolderText = "问点啥,可选模型后再问我.";
         }
+        else
+        {
+            PlaceHolderText = "AI开小差了. 重新问点啥吧,可选模型后再问我.";
+        }
+        await UpdateUI();
+    }
+
+    private async Task OnEnterAsync(string val)
+    {
+        await OnEnter();
     }
 
     /// <summary>
