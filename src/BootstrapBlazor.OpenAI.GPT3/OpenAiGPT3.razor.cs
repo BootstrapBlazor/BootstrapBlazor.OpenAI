@@ -60,6 +60,8 @@ public partial class OpenAiGPT3 : IAsyncDisposable
 
     [NotNull]
     private IEnumerable<SelectedItem> ItemsMaxToken { get; set; }= new [] {
+        new SelectedItem("5", "5"),
+        new SelectedItem("20", "20"),
         new SelectedItem("100", "100"),
         new SelectedItem("300", "300"),
         new SelectedItem("500", "500"),
