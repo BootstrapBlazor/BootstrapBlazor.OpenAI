@@ -1,12 +1,22 @@
 ﻿@namespace BootstrapBlazor.Components
+@using BootstrapBlazor.OpenAI.GPT3.Services 
 
-
+@{
+    bool isSimpleText = (SelectedEnumItem == EnumOpenAiModel.ChatGpt || SelectedEnumItem == EnumOpenAiModel.Completions || SelectedEnumItem == EnumOpenAiModel.ChatGptAiHomeAssistant || SelectedEnumItem == EnumOpenAiModel.Chatbot);
+}
 <div class="row g-3">
     <div class="col-12">
         <RadioList IsButton="true" @bind-Value="@SelectedEnumItem" />
     </div>
     <div class="col-12" @ref="Element">
-        <Textarea Id="@ID" Value="@ResultText" rows="20" />
+        @if (isSimpleText)
+        {
+            <Textarea Id="@ID" Value="@ResultText" rows="20" />
+        }
+        else
+        {
+            <Textarea Id="@ID" Value="@ResultText" rows="10" />
+        }
     </div>
     <div class="col-12">
         @if (ResultImage is not null)
@@ -17,11 +27,23 @@
         }
     </div>
     <div class="col-12">
-        <BootstrapInputGroup>
-            <BootstrapInput IsAutoFocus ShowLabel="true" TValue="string" PlaceHolder="@PlaceHolderText" OnEnterAsync="OnEnterAsync" OnEscAsync="OnEscAsync" @bind-Value="InputText" />
-            <Button Text="Enter" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
-            <Button Text="Clear" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
-        </BootstrapInputGroup>
+        @if (isSimpleText)
+        {
+            <BootstrapInputGroup>
+                <BootstrapInput IsAutoFocus ShowLabel="true" TValue="string" PlaceHolder="@PlaceHolderText" OnEnterAsync="OnEnterAsync" OnEscAsync="OnEscAsync" @bind-Value="InputText" />
+                <Button Text="Enter" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
+                <Button Text="Clear" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
+            </BootstrapInputGroup>
+        }
+        else
+        {
+            <Textarea ShowLabel="true" @bind-Value="InputText" rows="6" />
+            <br/>
+            <BootstrapInputGroup>
+                <Button Text="Enter" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
+                <Button Text="Clear" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
+            </BootstrapInputGroup>
+        }
     </div>
 
     @if (ShowOptions)

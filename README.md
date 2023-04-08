@@ -42,12 +42,14 @@ https://blazor.app1.es/OpenAI
     <OpenAiGPT3 />
     ```
 
-4.参数说明 
+4.配置文件参数说明 
 
 
-|  参数   | 说明  | 默认值  | 
-|  ----  | ----  | ----  | 
-| OpenAIKey  | 默认使用配置文件值 | null | 
+|  参数   | 说明  |
+|  ----  | ----  |
+| OpenAIKey  | OpenAIKey |
+| AzureOpenAIUrl  | AzureOpenAI Endpoint, 配置后使用AzureOpenAI |
+| AzureOpenAIKey  | AzureOpenAI Key | 
 
 ---
  

@@ -119,7 +119,7 @@ public partial class OpenAiGPT3 : IAsyncDisposable
     {
         if (firstRender)
         {
-            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.OpenAI.GPT3/app.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.OpenAI.GPT3/app.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version); 
         }
     }
 
@@ -149,28 +149,48 @@ public partial class OpenAiGPT3 : IAsyncDisposable
                 await UpdateUI();
                 res = await OpenaiService.ChatGPT(val, MaxTokens?? SelectedMaxTokens, Temperature?? SelectedTemperature);
                 break;
+            case EnumOpenAiModel.ChatGptAiHomeAssistant:
+                ResultText += "[AiHomeAssistant]" + Environment.NewLine;
+                await UpdateUI();
+                res = await OpenaiService.ChatGPT(val, MaxTokens?? SelectedMaxTokens, Temperature?? SelectedTemperature, true);
+                break;
             case EnumOpenAiModel.Completions:
                 ResultText += "[Completions]" + Environment.NewLine;
                 await UpdateUI();
                 res = await OpenaiService.Completions(val, MaxTokens ?? SelectedMaxTokens, Temperature?? SelectedTemperature);
+                break;
+            case EnumOpenAiModel.NaturalLanguageToSQL:
+                ResultText += "[NaturalLanguageToSQL]" + Environment.NewLine;
+                await UpdateUI();
+                res = await OpenaiService.NaturalLanguageToSQL(val);
+                break;
+            case EnumOpenAiModel.Chatbot:
+                ResultText += "[Chatbot]" + Environment.NewLine;
+                await UpdateUI();
+                res = await OpenaiService.Chatbot(val);
+                break;
+            case EnumOpenAiModel.ExtractingInformation:
+                ResultText += "[ExtractingInformation]" + Environment.NewLine;
+                await UpdateUI();
+                res = await OpenaiService.ExtractingInformation(val);
                 break;
             //case EnumOpenaiModdel.CompletionsStream:
             //    ResultText += "[Completions Stream]" + Environment.NewLine;
             //    await UpdateUI();
             //    res = await OpenaiService.CompletionsStream(val);
             //    break;
-            case EnumOpenAiModel.DALLE:
-                ResultText += "[DALL·E]" + Environment.NewLine;
-                await UpdateUI();
-                res = await OpenaiService.DALLE_CreateImage(val);
-                if (res != null)
-                {
-                    var imageDataUrl = $"data:image/jpg;base64,{res}";
-                    ResultImage = imageDataUrl;
-                    ResultText += Environment.NewLine;
-                    res = string.Empty;
-                }
-                break;
+            //case EnumOpenAiModel.DALLE:
+            //    ResultText += "[DALL·E]" + Environment.NewLine;
+            //    await UpdateUI();
+            //    res = await OpenaiService.DALLE_CreateImage(val);
+            //    if (res != null)
+            //    {
+            //        var imageDataUrl = $"data:image/jpg;base64,{res}";
+            //        ResultImage = imageDataUrl;
+            //        ResultText += Environment.NewLine;
+            //        res = string.Empty;
+            //    }
+            //    break;
         }
 
         if (res != null)

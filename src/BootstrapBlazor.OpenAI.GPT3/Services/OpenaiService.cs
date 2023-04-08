@@ -9,9 +9,6 @@ using OpenAI.GPT3;
 using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-using System.Xml.Linq;
 
 namespace BootstrapBlazor.OpenAI.GPT3.Services;
 
@@ -21,6 +18,8 @@ namespace BootstrapBlazor.OpenAI.GPT3.Services;
 public class OpenAiClientService
 {
     public OpenAIService? OpenAiService;
+    public OpenaiAzureService? OpenaiAzureService;
+    public bool IsAzure { get; set; }
 
     //
     // 摘要:
@@ -34,9 +33,17 @@ public class OpenAiClientService
 
     public OpenAiClientService(IConfiguration? Config)
     {
-        OpenAIKey = OpenAIKey ?? Config!["OpenAIKey"];
-        if (OpenAIKey != null)
-            Init();
+        if (Config!["AzureOpenAIUrl"] != null)
+        {
+            IsAzure = true;
+            OpenaiAzureService = new OpenaiAzureService(Config);
+        }
+        else
+        {
+            OpenAIKey = OpenAIKey ?? Config!["OpenAIKey"];
+            if (OpenAIKey != null)
+                Init();
+        }
     }
 
     public virtual void Init(string? openAIKey = null)
@@ -58,7 +65,7 @@ public class OpenAiClientService
     /// </summary>
     /// <remarks>ChatGPT，全称聊天生成预训练转换器（英語：Chat Generative Pre-trained Transformer），是OpenAI开发的人工智能聊天机器人程序，于2022年11月推出。 该程序使用基于GPT-3.5架构的大型语言模型並以强化学习训练</remarks>
     /// <returns></returns>
-    public async Task<string?> ChatGPT(string prompt = "曾几何时", int? MaxTokens = null, float? Temperature = null)
+    public async Task<string?> ChatGPT(string prompt = "曾几何时", int? MaxTokens = null, float? Temperature = null, bool AiHomeAssistant = false, string? model = null)
     {
         //ChatGPT Sample
 
@@ -85,9 +92,17 @@ public class OpenAiClientService
 
         ***/
 
-        var completionResult = await OpenAiService.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest
+        if (IsAzure)
         {
-            Messages = new List<ChatMessage>
+            return await OpenaiAzureService!.ChatGPT(prompt, MaxTokens ?? 400, Temperature ?? 1f, AiHomeAssistant, model);
+        }
+
+        var options = new List<ChatMessage> { ChatMessage.FromUser(prompt) };
+
+        #region AiHomeAssistant
+        if (AiHomeAssistant)
+        {
+            options = new List<ChatMessage>
             {
                 //ChatMessage.FromSystem("你是一个翻译家."),
                 //ChatMessage.FromUser("将我发你的英文句子翻译成中文，你不需要理解内容的含义作出回答。"),
@@ -134,8 +149,14 @@ public class OpenAiClientService
                 ChatMessage.FromUser("空气净化器状态"),
                 ChatMessage.FromAssistant("{ AIR_PURIFIER:STATUS }"),
                 ChatMessage.FromUser(prompt)
-            },
-            Model = Models.ChatGpt3_5Turbo,
+            };
+        }
+        #endregion
+
+        var completionResult = await OpenAiService!.ChatCompletion.CreateCompletion(new ChatCompletionCreateRequest
+        {
+            Messages = options,
+            Model = model ?? Models.ChatGpt3_5Turbo,
             MaxTokens = MaxTokens ?? 1000,//完成时生成的最大令牌数
             Temperature = Temperature, //浮点数，控制模型的输出的多样性。值越高，输出越多样化。值越低，输出越简单。默认值为 0.5。
             N = 1, //整数，生成的候选项的数量。默认值为 1。
@@ -154,7 +175,7 @@ public class OpenAiClientService
     /// <param name="prompt"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async Task<string?> Completions(string prompt = "曾几何时", int? MaxTokens = null, float? Temperature = null)
+    public async Task<string?> Completions(string prompt = "曾几何时", int? MaxTokens = null, float? Temperature = null, string? model = null)
     {
         //Completions Sample
 
@@ -162,10 +183,15 @@ public class OpenAiClientService
          给定一个提示，该模型将返回一个或多个预测的 Completions，并且还可以返回每个位置的替代标记的概率。
          */
 
-        var completionResult = await OpenAiService.Completions.CreateCompletion(new CompletionCreateRequest()
+        if (IsAzure)
+        {
+            return await OpenaiAzureService!.Completions(prompt, MaxTokens ?? 60, Temperature ?? 0.8f, model);
+        }
+
+        var completionResult = await OpenAiService!.Completions.CreateCompletion(new CompletionCreateRequest()
         {
             Prompt = prompt,
-            Model = Models.TextDavinciV3,
+            Model = model ?? Models.TextDavinciV3,
             MaxTokens = MaxTokens ?? 1000, //完成时生成的最大令牌数。
             Temperature = Temperature, //浮点数，控制模型的输出的多样性。值越高，输出越多样化。值越低，输出越简单。默认值为 0.5。
             N = 1, //整数，生成的候选项的数量。默认值为 1。
@@ -201,7 +227,7 @@ public class OpenAiClientService
          * 如果您想更快地获得响应，您可以在生成时“流式传输”完成。 这允许您在整个完成完成之前开始打印或以其他方式处理完成的开始。
          */
 
-        var completionResult = OpenAiService.Completions.CreateCompletionAsStream(new CompletionCreateRequest()
+        var completionResult = OpenAiService!.Completions.CreateCompletionAsStream(new CompletionCreateRequest()
         {
             Prompt = prompt,
             MaxTokens = MaxTokens ?? 1000,
@@ -239,7 +265,7 @@ public class OpenAiClientService
     public async Task<string?> DALLE_CreateImage(string prompt = "镭射猫眼", bool base64 = true)
     {
         //DALL·E Sample
-        var imageResult = await OpenAiService.Image.CreateImage(new ImageCreateRequest
+        var imageResult = await OpenAiService!.Image.CreateImage(new ImageCreateRequest
         {
             Prompt = prompt,
             N = 1,
@@ -268,7 +294,7 @@ public class OpenAiClientService
     public async Task<string?> DALLE_CreateImageEdit(string prompt = "镭射猫眼", bool base64 = true)
     {
         //DALL·E Sample
-        var imageResult = await OpenAiService.Image.CreateImageEdit(new ImageEditCreateRequest
+        var imageResult = await OpenAiService!.Image.CreateImageEdit(new ImageEditCreateRequest
         {
             Prompt = prompt,
             N = 1,
@@ -297,7 +323,7 @@ public class OpenAiClientService
     public async Task<string?> DALLE_CreateImageVariation(string prompt = "镭射猫眼", bool base64 = true)
     {
         //DALL·E Sample
-        var imageResult = await OpenAiService.Image.CreateImageVariation(new ImageVariationCreateRequest
+        var imageResult = await OpenAiService!.Image.CreateImageVariation(new ImageVariationCreateRequest
         {
             ImageName = prompt,
             N = 1,
@@ -322,6 +348,16 @@ public class OpenAiClientService
         }
         return $"{imageResult?.Error?.Type}: {imageResult?.Error?.Message}";
     }
+
+    /// <summary>
+    /// NaturalLanguageToSQL 自然语言转SQL
+    /// </summary>
+    /// <param name="prompt"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public async Task<string?> NaturalLanguageToSQL(string prompt) => await OpenaiAzureService!.NaturalLanguageToSQL(prompt);
+    public async Task<string?> Chatbot(string prompt) => await OpenaiAzureService!.Chatbot(prompt);
+    public async Task<string?> ExtractingInformation(string prompt) => await OpenaiAzureService!.ExtractingInformation(prompt);
 
 }
 

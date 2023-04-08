@@ -31,9 +31,24 @@ public enum EnumOpenAiModel
     //[Display(Name = "Completions Stream")]
     //CompletionsStream,
 
+    ///// <summary>
+    ///// DALL-E
+    ///// </summary>
+    //[Display(Name = "DALL-E")]
+    //DALLE,
+
     /// <summary>
-    /// DALL-E
+    ///ChatGPT AiHomeAssistant
     /// </summary>
-    [Display(Name = "DALL-E")]
-    DALLE,
+    [Display(Name = "AiHomeAssistant")]
+    ChatGptAiHomeAssistant,
+
+    [Display(Name = "聊天机器人")]
+    Chatbot,
+
+    [Display(Name = "自然语言转SQL")]
+    NaturalLanguageToSQL,
+
+    [Display(Name = "提取信息")]
+    ExtractingInformation,
 }

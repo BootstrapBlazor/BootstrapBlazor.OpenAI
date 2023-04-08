@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.0.4</Version>
+        <Version>0.0.5</Version>
         <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI.GPT3</PackageProjectUrl>
         <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI.GPT3</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
@@ -27,6 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.5" />
         <PackageReference Include="Betalgo.OpenAI.GPT3" Version="6.8.3" />
         <PackageReference Include="BootstrapBlazor" Version="7.*" />
     </ItemGroup>
