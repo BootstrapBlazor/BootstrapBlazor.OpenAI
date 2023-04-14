@@ -68,6 +68,9 @@ public partial class OpenAiGPT3 : IAsyncDisposable
         new SelectedItem("2000", "2000"),
         new SelectedItem("3000", "3000"),
         new SelectedItem("4000", "4000"),
+        new SelectedItem("5000", "5000"),
+        new SelectedItem("10000", "10000"),
+        new SelectedItem("20000", "20000"),
     };
 
     int SelectedMaxTokens { get; set; } = 500;
