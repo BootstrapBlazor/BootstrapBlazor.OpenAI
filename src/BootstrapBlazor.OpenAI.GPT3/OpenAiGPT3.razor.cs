@@ -149,6 +149,16 @@ public partial class OpenAiGPT3 : IAsyncDisposable
                 await UpdateUI();
                 res = await OpenaiService.ChatGPT(val, MaxTokens?? SelectedMaxTokens, Temperature?? SelectedTemperature);
                 break;
+            case EnumOpenAiModel.ChatGpt4:
+                ResultText += "[ChatGpt4]" + Environment.NewLine;
+                await UpdateUI();
+                res = await OpenaiService.ChatGPT(val, MaxTokens?? SelectedMaxTokens, Temperature?? SelectedTemperature,model: "gpt4");
+                break;
+            case EnumOpenAiModel.ChatGpt4_32k:
+                ResultText += "[ChatGpt4 32k]" + Environment.NewLine;
+                await UpdateUI();
+                res = await OpenaiService.ChatGPT(val, MaxTokens?? SelectedMaxTokens, Temperature?? SelectedTemperature,model: "gpt4-32k");
+                break;
             case EnumOpenAiModel.ChatGptAiHomeAssistant:
                 ResultText += "[AiHomeAssistant]" + Environment.NewLine;
                 await UpdateUI();

@@ -51,4 +51,17 @@ public enum EnumOpenAiModel
 
     [Display(Name = "提取信息")]
     ExtractingInformation,
+
+    /// <summary>
+    ///ChatGPT4
+    /// </summary>
+    [Display(Name = "ChatGPT4")]
+    ChatGpt4,
+
+    /// <summary>
+    ///ChatGPT4-32k
+    /// </summary>
+    [Display(Name = "ChatGPT4 32k")]
+    ChatGpt4_32k,
+
 }
