@@ -6,12 +6,12 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.0.5</Version>
+        <Version>0.0.6</Version>
         <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI.GPT3</PackageProjectUrl>
         <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI.GPT3</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>Bootstrap Blazor OpenAI GPT3 组件 </PackageTags>
-        <Description>Bootstrap UI OpenAI GPT3 components experience</Description>
+        <PackageTags>Bootstrap Blazor OpenAI 组件 </PackageTags>
+        <Description>Bootstrap UI OpenAI components experience</Description>
         <AssemblyName>BootstrapBlazor.OpenAI.GPT3</AssemblyName>
         <RootNamespace>BootstrapBlazor.OpenAI.GPT3</RootNamespace>
         <AssemblyOriginatorKeyFile>..\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
@@ -28,7 +28,7 @@
 
     <ItemGroup>
         <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.5" />
-        <PackageReference Include="Betalgo.OpenAI.GPT3" Version="6.8.3" />
+        <PackageReference Include="Betalgo.OpenAI.GPT3" Version="6.8.4" />
         <PackageReference Include="BootstrapBlazor" Version="7.*" />
     </ItemGroup>
 
