@@ -10,7 +10,7 @@ using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 
-namespace BootstrapBlazor.OpenAI.GPT.Services;
+namespace BootstrapBlazor.OpenAI.Services;
 
 /// <summary>
 /// OpenAI API

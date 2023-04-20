@@ -6,7 +6,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace BootstrapBlazor.OpenAI.GPT.Services;
+namespace BootstrapBlazor.OpenAI.Services;
 
 /// <summary>
 ///

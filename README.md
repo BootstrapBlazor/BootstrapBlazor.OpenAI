@@ -35,12 +35,14 @@ https://blazor.app1.es/OpenAI
 
     ```
     "OpenAIKey": "OpenAIKey"
+    "AzureOpenAIUrl": "AzureOpenAI Endpoint, 配置后使用AzureOpenAI"
+    "AzureOpenAIKey": "AzureOpenAI Key"
     ```
 
 5. Razor页面
 
     ```
-    <OpenAiGPT3 />
+    <OpenAI />
     ```
 
 4.配置文件参数说明 
@@ -80,7 +82,7 @@ https://blazor.app1.es/OpenAI
 
 [蓝牙和打印 Bluetooth](https://www.nuget.org/packages/BootstrapBlazor.Bluetooth#readme-body-tab)
 
-[PDF阅读器 OpenAI.GPT](https://www.nuget.org/packages/BootstrapBlazor.OpenAI.GPT#readme-body-tab)
+[PDF阅读器 OpenAI.GPT](https://www.nuget.org/packages/BootstrapBlazor.OpenAI#readme-body-tab)
 
 [文件系统访问 FileSystem](https://www.nuget.org/packages/BootstrapBlazor.FileSystem#readme-body-tab)
 

@@ -6,14 +6,14 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.0.6</Version>
-        <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI.GPT3</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI.GPT3</RepositoryUrl>
+        <Version>0.1</Version>
+        <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>Bootstrap Blazor OpenAI 组件 </PackageTags>
         <Description>Bootstrap UI OpenAI components experience</Description>
-        <AssemblyName>BootstrapBlazor.OpenAI.GPT</AssemblyName>
-        <RootNamespace>BootstrapBlazor.OpenAI.GPT</RootNamespace>
+        <AssemblyName>BootstrapBlazor.OpenAI</AssemblyName>
+        <RootNamespace>BootstrapBlazor.OpenAI</RootNamespace>
         <AssemblyOriginatorKeyFile>..\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
          <SignAssembly>True</SignAssembly>
    </PropertyGroup>

@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Security.Principal;
 
-namespace BootstrapBlazor.OpenAI.GPT.Services;
+namespace BootstrapBlazor.OpenAI.Services;
 
 /// <summary>
 /// OpenAI API 使用 GPT-3 预训练生成式转换器

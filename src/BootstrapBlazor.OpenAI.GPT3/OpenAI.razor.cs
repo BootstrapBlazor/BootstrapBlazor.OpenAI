@@ -4,7 +4,7 @@
 // e-mail:zhouchuanglin@gmail.com 
 // **********************************
 
-using BootstrapBlazor.OpenAI.GPT.Services;
+using BootstrapBlazor.OpenAI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Microsoft.JSInterop;
@@ -14,9 +14,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// Blazor OpenAI GPT 组件 
+/// Blazor OpenAI 组件 
 /// </summary>
-public partial class OpenAiGPT : IAsyncDisposable
+public partial class OpenAI : IAsyncDisposable
 {
     [Inject]
     [NotNull]
@@ -122,7 +122,7 @@ public partial class OpenAiGPT : IAsyncDisposable
     {
         if (firstRender)
         {
-            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.OpenAI.GPT/app.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.OpenAI/app.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
         }
     }
 
