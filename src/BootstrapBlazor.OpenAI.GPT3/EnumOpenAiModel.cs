@@ -6,7 +6,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace BootstrapBlazor.OpenAI.GPT3.Services;
+namespace BootstrapBlazor.OpenAI.GPT.Services;
 
 /// <summary>
 ///
@@ -31,11 +31,11 @@ public enum EnumOpenAiModel
     //[Display(Name = "Completions Stream")]
     //CompletionsStream,
 
-    ///// <summary>
-    ///// DALL-E
-    ///// </summary>
-    //[Display(Name = "DALL-E")]
-    //DALLE,
+    /// <summary>
+    /// DALL-E
+    /// </summary>
+    [Display(Name = "DALL-E")]
+    DALLE,
 
     /// <summary>
     ///ChatGPT AiHomeAssistant

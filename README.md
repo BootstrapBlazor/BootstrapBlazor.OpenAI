@@ -1,6 +1,7 @@
-# Blazor OpenAI GPT3 组件  
+# Blazor OpenAI 组件  
 
-![image](https://user-images.githubusercontent.com/8428709/227728026-5c091b07-0944-4618-af38-a47d301bc2af.png)
+![image](https://user-images.githubusercontent.com/8428709/233230898-46dec124-cc61-4ffc-ba52-bd96da6e2b04.png)
+
 
 示例:
 
@@ -13,7 +14,7 @@ https://blazor.app1.es/OpenAI
 1. nuget包
 
     ```
-    BootstrapBlazor.OpenAI.GPT3
+    BootstrapBlazor.OpenAI
     ```
 
 2. _Imports.razor 文件 或者页面添加 添加组件库引用
@@ -25,7 +26,7 @@ https://blazor.app1.es/OpenAI
 3. Program.cs 文件添加
 
     ```
-    builder.Services.AddTransient<OpenAiBBService>();
+    builder.Services.AddTransient<OpenAiClientService>();
     ```
 
 4. Key
@@ -79,7 +80,7 @@ https://blazor.app1.es/OpenAI
 
 [蓝牙和打印 Bluetooth](https://www.nuget.org/packages/BootstrapBlazor.Bluetooth#readme-body-tab)
 
-[PDF阅读器 OpenAI.GPT3](https://www.nuget.org/packages/BootstrapBlazor.OpenAI.GPT3#readme-body-tab)
+[PDF阅读器 OpenAI.GPT](https://www.nuget.org/packages/BootstrapBlazor.OpenAI.GPT#readme-body-tab)
 
 [文件系统访问 FileSystem](https://www.nuget.org/packages/BootstrapBlazor.FileSystem#readme-body-tab)
 

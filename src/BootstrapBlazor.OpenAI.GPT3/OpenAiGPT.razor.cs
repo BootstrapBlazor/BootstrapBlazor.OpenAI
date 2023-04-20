@@ -4,7 +4,7 @@
 // e-mail:zhouchuanglin@gmail.com 
 // **********************************
 
-using BootstrapBlazor.OpenAI.GPT3.Services;
+using BootstrapBlazor.OpenAI.GPT.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Microsoft.JSInterop;
@@ -14,9 +14,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace BootstrapBlazor.Components;
 
 /// <summary>
-/// Blazor OpenAI GPT3 组件 
+/// Blazor OpenAI GPT 组件 
 /// </summary>
-public partial class OpenAiGPT3 : IAsyncDisposable
+public partial class OpenAiGPT : IAsyncDisposable
 {
     [Inject]
     [NotNull]
@@ -27,15 +27,15 @@ public partial class OpenAiGPT3 : IAsyncDisposable
 
     private ElementReference Element { get; set; }
 
-    private string ID { get; set; }=Guid.NewGuid().ToString("N");
+    private string ID { get; set; } = Guid.NewGuid().ToString("N");
 
     [NotNull]
     [Inject]
-     private  IConfiguration? Config { get; set; }
+    private IConfiguration? Config { get; set; }
 
     [NotNull]
     [Inject]
-     private OpenAiClientService? OpenaiService { get; set; }
+    private OpenAiClientService? OpenaiService { get; set; }
 
     /// <summary>
     /// 获得/设置 查询关键字
@@ -51,7 +51,7 @@ public partial class OpenAiGPT3 : IAsyncDisposable
     private string? ResultText { get; set; }
     private string? ResultImage { get; set; }
 
-    private string? PlaceHolderText { get; set; }="问点啥,可选模型后再问我.";
+    private string? PlaceHolderText { get; set; } = "问点啥,可选模型后再问我.";
 
     private int Lines { get; set; } = 0;
 
@@ -59,7 +59,7 @@ public partial class OpenAiGPT3 : IAsyncDisposable
     private EnumOpenAiModel? SelectedEnumItem { get; set; }
 
     [NotNull]
-    private IEnumerable<SelectedItem> ItemsMaxToken { get; set; }= new [] {
+    private IEnumerable<SelectedItem> ItemsMaxToken { get; set; } = new[] {
         new SelectedItem("5", "5"),
         new SelectedItem("20", "20"),
         new SelectedItem("100", "100"),
@@ -76,7 +76,7 @@ public partial class OpenAiGPT3 : IAsyncDisposable
     int SelectedMaxTokens { get; set; } = 500;
 
     [NotNull]
-    private IEnumerable<SelectedItem> ItemsTemperature { get; set; }= new [] {
+    private IEnumerable<SelectedItem> ItemsTemperature { get; set; } = new[] {
         new SelectedItem("0.1", "0.1"),
         new SelectedItem("0.2", "0.2"),
         new SelectedItem("0.5", "0.5"),
@@ -104,7 +104,7 @@ public partial class OpenAiGPT3 : IAsyncDisposable
     /// 浮点数，控制模型的输出的多样性。值越高，输出越多样化。值越低，输出越简单。默认值为 0.5<para></para>参数为空, 内置 SelectedTemperature 优先
     /// </summary>
     [Parameter]
-    public float? Temperature { get; set; } 
+    public float? Temperature { get; set; }
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
@@ -122,25 +122,25 @@ public partial class OpenAiGPT3 : IAsyncDisposable
     {
         if (firstRender)
         {
-            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.OpenAI.GPT3/app.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version); 
+            Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.OpenAI.GPT/app.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
         }
     }
 
     private async Task OnEnter()
     {
         var val = InputText;
-        if (string.IsNullOrWhiteSpace (val))
+        if (string.IsNullOrWhiteSpace(val))
         {
             return;
-        } 
+        }
 
         Lines++;
         if (Lines > 20)
         {
-            ResultText=string.Empty;
+            ResultText = string.Empty;
             Lines = 1;
         }
-        ResultText+=($"Q: {val}{Environment.NewLine}");
+        ResultText += ($"Q: {val}{Environment.NewLine}");
         InputText = string.Empty;
         PlaceHolderText = "思考中...";
         ResultImage = null;
@@ -150,27 +150,27 @@ public partial class OpenAiGPT3 : IAsyncDisposable
             default:
                 ResultText += "[ChatGpt]" + Environment.NewLine;
                 await UpdateUI();
-                res = await OpenaiService.ChatGPT(val, MaxTokens?? SelectedMaxTokens, Temperature?? SelectedTemperature);
+                res = await OpenaiService.ChatGPT(val, MaxTokens ?? SelectedMaxTokens, Temperature ?? SelectedTemperature);
                 break;
             case EnumOpenAiModel.ChatGpt4:
                 ResultText += "[ChatGpt4]" + Environment.NewLine;
                 await UpdateUI();
-                res = await OpenaiService.ChatGPT(val, MaxTokens?? SelectedMaxTokens, Temperature?? SelectedTemperature,model: "gpt4");
+                res = await OpenaiService.ChatGPT(val, MaxTokens ?? SelectedMaxTokens, Temperature ?? SelectedTemperature, model: "gpt4");
                 break;
             case EnumOpenAiModel.ChatGpt4_32k:
                 ResultText += "[ChatGpt4 32k]" + Environment.NewLine;
                 await UpdateUI();
-                res = await OpenaiService.ChatGPT(val, MaxTokens?? SelectedMaxTokens, Temperature?? SelectedTemperature,model: "gpt4-32k");
+                res = await OpenaiService.ChatGPT(val, MaxTokens ?? SelectedMaxTokens, Temperature ?? SelectedTemperature, model: "gpt4-32k");
                 break;
             case EnumOpenAiModel.ChatGptAiHomeAssistant:
                 ResultText += "[AiHomeAssistant]" + Environment.NewLine;
                 await UpdateUI();
-                res = await OpenaiService.ChatGPT(val, MaxTokens?? SelectedMaxTokens, Temperature?? SelectedTemperature, true);
+                res = await OpenaiService.ChatGPT(val, MaxTokens ?? SelectedMaxTokens, Temperature ?? SelectedTemperature, true);
                 break;
             case EnumOpenAiModel.Completions:
                 ResultText += "[Completions]" + Environment.NewLine;
                 await UpdateUI();
-                res = await OpenaiService.Completions(val, MaxTokens ?? SelectedMaxTokens, Temperature?? SelectedTemperature);
+                res = await OpenaiService.Completions(val, MaxTokens ?? SelectedMaxTokens, Temperature ?? SelectedTemperature);
                 break;
             case EnumOpenAiModel.NaturalLanguageToSQL:
                 ResultText += "[NaturalLanguageToSQL]" + Environment.NewLine;
@@ -192,18 +192,27 @@ public partial class OpenAiGPT3 : IAsyncDisposable
             //    await UpdateUI();
             //    res = await OpenaiService.CompletionsStream(val);
             //    break;
-            //case EnumOpenAiModel.DALLE:
-            //    ResultText += "[DALL·E]" + Environment.NewLine;
-            //    await UpdateUI();
-            //    res = await OpenaiService.DALLE_CreateImage(val);
-            //    if (res != null)
-            //    {
-            //        var imageDataUrl = $"data:image/jpg;base64,{res}";
-            //        ResultImage = imageDataUrl;
-            //        ResultText += Environment.NewLine;
-            //        res = string.Empty;
-            //    }
-            //    break;
+            case EnumOpenAiModel.DALLE:
+                ResultText += "[DALL·E]" + Environment.NewLine;
+                await UpdateUI();
+                res = await OpenaiService.DALLE_CreateImage(val, false);
+                if (res != null)
+                {
+                    if (res.StartsWith("http"))
+                    {
+                        var httpclient = new HttpClient();
+                        var stream = await httpclient.GetStreamAsync(res);
+                        ResultImage = res;
+                    }
+                    else
+                    {
+                        var imageDataUrl = $"data:image/jpg;base64,{res}";
+                        ResultImage = imageDataUrl;
+                    }
+                    ResultText += Environment.NewLine;
+                    res = string.Empty;
+                }
+                break;
         }
 
         if (res != null)
@@ -214,13 +223,13 @@ public partial class OpenAiGPT3 : IAsyncDisposable
                 var stream = await httpclient.GetStreamAsync(res);
 
                 ResultImage = res;
-                ResultText+=(Environment.NewLine);
+                ResultText += (Environment.NewLine);
             }
             else if (res != string.Empty)
             {
-                ResultText+=($"A: {res}{Environment.NewLine}");
+                ResultText += ($"A: {res}{Environment.NewLine}");
             }
-            ResultText+=(Environment.NewLine);
+            ResultText += (Environment.NewLine);
             InputText = string.Empty;
             PlaceHolderText = "问点啥,可选模型后再问我.";
         }
@@ -241,7 +250,7 @@ public partial class OpenAiGPT3 : IAsyncDisposable
     /// </summary>
     /// <param name="scroll"></param>
     /// <returns></returns>
-    private async Task UpdateUI(bool scroll=true)
+    private async Task UpdateUI(bool scroll = true)
     {
         StateHasChanged();
         if (!scroll) return;
@@ -255,10 +264,10 @@ public partial class OpenAiGPT3 : IAsyncDisposable
         return Task.CompletedTask;
     }
 
-    private  Task OnClear()
+    private Task OnClear()
     {
-        ResultText=string.Empty;
-        InputText=string.Empty;
+        ResultText = string.Empty;
+        InputText = string.Empty;
         ResultImage = null;
         return Task.CompletedTask;
     }

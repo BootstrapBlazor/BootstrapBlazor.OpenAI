@@ -10,10 +10,10 @@ using OpenAI.GPT3.Managers;
 using OpenAI.GPT3.ObjectModels;
 using OpenAI.GPT3.ObjectModels.RequestModels;
 
-namespace BootstrapBlazor.OpenAI.GPT3.Services;
+namespace BootstrapBlazor.OpenAI.GPT.Services;
 
 /// <summary>
-/// OpenAI API 使用 GPT-3 预训练生成式转换器
+/// OpenAI API
 /// </summary>
 public class OpenAiClientService
 {
@@ -262,8 +262,13 @@ public class OpenAiClientService
     /// <param name="prompt"></param>
     /// <returns></returns>
 
-    public async Task<string?> DALLE_CreateImage(string prompt = "镭射猫眼", bool base64 = true)
+    public async Task<string?> DALLE_CreateImage(string prompt = "镭射猫眼", bool base64 = true, string? resolution = "1024x1024", string? model = "text-to-image", string? api_version = "2022-08-03-preview")
     {
+        if (IsAzure)
+        {
+            return await OpenaiAzureService!.DALLE_CreateImage(prompt, resolution, model, api_version);
+        }
+
         //DALL·E Sample
         var imageResult = await OpenAiService!.Image.CreateImage(new ImageCreateRequest
         {

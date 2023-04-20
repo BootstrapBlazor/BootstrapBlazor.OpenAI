@@ -12,8 +12,8 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>Bootstrap Blazor OpenAI 组件 </PackageTags>
         <Description>Bootstrap UI OpenAI components experience</Description>
-        <AssemblyName>BootstrapBlazor.OpenAI.GPT3</AssemblyName>
-        <RootNamespace>BootstrapBlazor.OpenAI.GPT3</RootNamespace>
+        <AssemblyName>BootstrapBlazor.OpenAI.GPT</AssemblyName>
+        <RootNamespace>BootstrapBlazor.OpenAI.GPT</RootNamespace>
         <AssemblyOriginatorKeyFile>..\keys\Longbow.Utility.snk</AssemblyOriginatorKeyFile>
          <SignAssembly>True</SignAssembly>
    </PropertyGroup>
@@ -28,8 +28,9 @@
 
     <ItemGroup>
         <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.5" />
-        <PackageReference Include="Betalgo.OpenAI.GPT3" Version="6.8.4" />
+        <PackageReference Include="Betalgo.OpenAI" Version="6.8.5" />
         <PackageReference Include="BootstrapBlazor" Version="7.*" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 
     <!-- 通过移除正常的引用并替换成固定版本的引用，达到无论如何更新都无法生效的目的。 -->

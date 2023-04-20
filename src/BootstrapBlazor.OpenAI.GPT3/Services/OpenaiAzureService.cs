@@ -7,8 +7,10 @@
 using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using System.Security.Principal;
 
-namespace BootstrapBlazor.OpenAI.GPT3.Services;
+namespace BootstrapBlazor.OpenAI.GPT.Services;
 
 /// <summary>
 /// OpenAI API 使用 GPT-3 预训练生成式转换器
@@ -200,7 +202,7 @@ public class OpenaiAzureService
     public async Task<string?> Chatbot(string prompt = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly. \n \nHuman: Hello, who are you? \nAI: Hello, I am an AI assistant. I am here to help you with anything you need.\nHuman: I'd like to cancel my subscription. \nAI: Absolutely. I'm sorry to hear that you need to cancel your subscription. What's the best way for me to help you with this?", int MaxTokens = 256, float Temperature = 0.9f, string? model = "text-davinci-003")
     {
         Response<Completions> completionsResponse = await client!.GetCompletionsAsync(
-            deploymentOrModelName: model??"text-davinci-003",
+            deploymentOrModelName: model ?? "text-davinci-003",
             new CompletionsOptions()
             {
                 Prompts = { prompt },
@@ -227,7 +229,7 @@ public class OpenaiAzureService
     {
 
         Response<Completions> completionsResponse = await client!.GetCompletionsAsync(
-            deploymentOrModelName: model??"text-davinci-003",
+            deploymentOrModelName: model ?? "text-davinci-003",
             new CompletionsOptions()
             {
                 Prompts = { prompt },
@@ -247,5 +249,75 @@ public class OpenaiAzureService
         }
         return null;
 
+    }
+
+    public async Task<string?> DALLE_CreateImage(string prompt = "镭射猫眼", string? resolution = "1024x1024", string? model = "text-to-image", string? api_version = "2022-08-03-preview")
+    {
+        resolution = resolution ?? "1024x1024";
+        model = model ?? "text-to-image";
+        api_version = api_version ?? "2022-08-03-preview";
+
+        int retryAfter = 6;
+        string operationLocation="";
+        var client = new HttpClient();
+        var request = new HttpRequestMessage(HttpMethod.Post, $"{Endpoint}dalle/{model}?api-version={api_version}");
+        request.Headers.Add("api-key", OpenAIKey);
+        var dalle_request = new DALLE_request()
+        {
+            Caption = prompt,
+            Resolution = resolution
+        };
+        var body = JsonConvert.SerializeObject(dalle_request);
+        var content = new StringContent(body, null, "application/json");
+        request.Content = content;
+        var response = await client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+        if (response.Headers.TryGetValues("Retry-After", out var retryAfters))
+        {
+            retryAfter=int.Parse(retryAfters.First());
+        }
+        if (response.Headers.TryGetValues("operation-location", out var operationLocations))
+        {
+            operationLocation=operationLocations.First();
+        }
+        string? status = "";
+        DALLE_response? dalle_response=null;
+        while (status != "Succeeded")
+        {
+            await Task.Delay(retryAfter);
+            request = new HttpRequestMessage(HttpMethod.Get, operationLocation);
+            request.Headers.Add("api-key", OpenAIKey);
+            response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadAsStringAsync();
+            dalle_response = JsonConvert.DeserializeObject<DALLE_response>(result);
+            status = dalle_response?.Status ?? "";
+            Console.WriteLine (model + " " + status);
+        };
+
+        var url= dalle_response?.Result?.ContentUrl ;
+        Console.WriteLine(url);
+
+        //TODO: load image to base64
+
+        return url;
+    }
+
+    class DALLE_request
+    {
+        public string? Caption { get; set; }
+        public string? Resolution { get; set; } = "1024x1024";
+    }
+
+    class DALLE_response
+    {
+        public string? Id { get; set; }
+        public string? Status { get; set; }
+        public DALLE_response_result? Result { get; set; }
+    }
+
+    class DALLE_response_result
+    {
+        public string? ContentUrl { get; set; }
     }
 }
