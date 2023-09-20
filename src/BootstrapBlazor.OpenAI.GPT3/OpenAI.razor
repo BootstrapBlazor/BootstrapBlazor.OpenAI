@@ -1,12 +1,12 @@
 ﻿@namespace BootstrapBlazor.Components
-@using BootstrapBlazor.OpenAI.Services 
+@using BootstrapBlazor.OpenAI.Services
 
 @{
     bool isSimpleText = (SelectedEnumItem == EnumOpenAiModel.ChatGpt || SelectedEnumItem == EnumOpenAiModel.ChatGpt4 || SelectedEnumItem == EnumOpenAiModel.Completions || SelectedEnumItem == EnumOpenAiModel.ChatGptAiHomeAssistant || SelectedEnumItem == EnumOpenAiModel.Chatbot || SelectedEnumItem == EnumOpenAiModel.DALLE);
 }
-<div class="row g-3">
+<div class="row mt-3 g-3">
     <div class="col-12">
-        <RadioList IsButton="true" @bind-Value="@SelectedEnumItem" />
+        <Select Color="Color.Primary" @bind-Value="@SelectedEnumItem" />
     </div>
     <div class="col-12" @ref="Element">
         @if (isSimpleText && SelectedEnumItem != EnumOpenAiModel.DALLE)
@@ -33,30 +33,75 @@
                 <BootstrapInput IsAutoFocus ShowLabel="true" TValue="string" PlaceHolder="@PlaceHolderText" OnEnterAsync="OnEnterAsync" OnEscAsync="OnEscAsync" @bind-Value="InputText" />
                 <Button Text="Enter" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
                 <Button Text="Clear" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
+                @if (EnableSpeech)
+                {
+                    <Button Text="Talk" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
+                    <Button Text="停止" OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
+                }
             </BootstrapInputGroup>
         }
         else
         {
             <Textarea ShowLabel="true" @bind-Value="InputText" rows="6" />
-            <br/>
+            <br />
             <BootstrapInputGroup>
                 <Button Text="Enter" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
                 <Button Text="Clear" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
+                @if (EnableSpeech)
+                {
+                    <Button Text="Talk" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
+                    <Button Text="停止" OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
+                }
             </BootstrapInputGroup>
         }
     </div>
-
-    @if (ShowOptions)
-    {
+    <div class="col-12">
+        @if (WebSpeech != null && WebSpeech.IsBusy)
+        {
+            <Spinner />
+        }
+        <WebSpeech @ref="WebSpeech" OnResult="@OnResult" OnIsBusy="@OnIsBusy" OnError="@OnError" />
+    </div>
+</div>
+@if (ShowOptions)
+{
+    <div class="row mt-3 g-3">
         <div class="col-6">
             <Select Color="Color.Primary" Items="ItemsMaxToken" @bind-Value="@SelectedMaxTokens" ShowLabel="true" DisplayText="MaxToken 生成的最大令牌数" />
         </div>
         <div class="col-6">
             <Select Color="Color.Primary" Items="ItemsTemperature" @bind-Value="@SelectedTemperature" ShowLabel="true" DisplayText="Temperature 模型的输出的多样性" />
         </div>
-    }
+    </div>
+}
 
-</div>
+@if (EnableSpeech)
+{
+    <GroupBox Title="语音设置" class="mt-5">
+        <div class="row g-3">
+            <div class="col-12 col-sm-6 col-md-4">
+                <BootstrapInput ShowLabel="true" @bind-Value="@_speechLanguage" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <Switch ShowLabel="true" @bind-Value="@ContinuousConversation" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <Switch ShowLabel="true" @bind-Value="@AutoSent" />
+            </div>
+        </div>
+        <div class="row g-3"> 
+            <div class="col-12 col-sm-6 col-md-4">
+                <Switch ShowLabel="true" @bind-Value="@AutoSpeak" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <Switch ShowLabel="true" @bind-Value="@Options.Continuous" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-4">
+                <Switch ShowLabel="true" @bind-Value="@Options.InterimResults" />
+            </div>
+        </div>
+    </GroupBox>
+}
 
 @if (!string.IsNullOrEmpty(ErrorMessage))
 {

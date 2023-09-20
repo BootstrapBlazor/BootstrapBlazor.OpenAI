@@ -43,19 +43,30 @@ https://blazor.app1.es/OpenAI
 
     ```
     <OpenAI />
+
+    <OpenAI EnableSpeech="false" />
     ```
 
 4.配置文件参数说明 
 
 
-|  参数   | 说明  |
-|  ----  | ----  |
-| OpenAIKey  | OpenAIKey |
-| AzureOpenAIUrl  | AzureOpenAI Endpoint, 配置后使用AzureOpenAI |
-| AzureOpenAIKey  | AzureOpenAI Key | 
+|  参数   | 说明  | 默认值  |
+|  ----  | ----  | ----  |
+| OpenAIKey  | OpenAIKey | |
+| AzureOpenAIUrl  | AzureOpenAI Endpoint, 配置后使用AzureOpenAI | |
+| AzureOpenAIKey  | AzureOpenAI Key |  |
+| MaxTokens  | 完成时生成的最大令牌数 | 500 |
+| Temperature  | 浮点数，控制模型的输出的多样性。值越高，输出越多样化。值越低，输出越简单 | 0.5 |
+| ShowOptions  | 显示选项 | true |
+| EnableSpeech  | 启用语音识别/合成 | true |
+| SpeechLanguage  | 语音模块语言,默认中文 | zh-CN |
 
 ---
  
+ #### 更新历史
+
+v0.2
+- 添加语音识别/合成
 
 ---
 #### Blazor 组件

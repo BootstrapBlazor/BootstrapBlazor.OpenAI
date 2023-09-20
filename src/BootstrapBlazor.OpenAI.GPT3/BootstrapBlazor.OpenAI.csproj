@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.1</Version>
+        <Version>0.2</Version>
         <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI</PackageProjectUrl>
         <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
@@ -32,6 +32,10 @@
         <PackageReference Include="Betalgo.OpenAI" Version="6.8.5" />
         <PackageReference Include="BootstrapBlazor" Version="7.*" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\BootstrapBlazor.WebAPI\src\BootstrapBlazor.WebAPI\BootstrapBlazor.WebAPI.csproj" />
     </ItemGroup>
 
     <!-- 通过移除正常的引用并替换成固定版本的引用，达到无论如何更新都无法生效的目的。 -->
