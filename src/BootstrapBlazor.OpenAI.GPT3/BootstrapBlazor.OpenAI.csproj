@@ -28,7 +28,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.5" />
+        <PackageReference Include="Azure.AI.OpenAI" Version="1.0.0-beta.7" />
         <PackageReference Include="Betalgo.OpenAI" Version="6.8.5" />
         <PackageReference Include="BootstrapBlazor" Version="7.*" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
