@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <Version>0.2</Version>
+        <Version>0.2.1</Version>
         <PackageProjectUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI</PackageProjectUrl>
         <RepositoryUrl>https://github.com/densen2014/BootstrapBlazor.OpenAI</RepositoryUrl>
         <RepositoryType>git</RepositoryType>

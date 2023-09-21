@@ -5,6 +5,7 @@
 // **********************************
 
 using BootstrapBlazor.OpenAI.Services;
+using BootstrapBlazor.WebAPI.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Configuration;
 using Microsoft.JSInterop;
@@ -18,6 +19,10 @@ namespace BootstrapBlazor.Components;
 /// </summary>
 public partial class OpenAI : IAsyncDisposable
 {
+    [Inject]
+    [NotNull]
+    protected IStorage? Storage { get; set; }
+
     [Inject]
     [NotNull]
     private IJSRuntime? JSRuntime { get; set; }
@@ -67,7 +72,7 @@ public partial class OpenAI : IAsyncDisposable
         new SelectedItem("20000", "20000"),
     };
 
-    int SelectedMaxTokens { get; set; } = 500;
+    private int SelectedMaxTokens { get; set; } = 500;
 
     [NotNull]
     private IEnumerable<SelectedItem> ItemsTemperature { get; set; } = new[] {
@@ -92,13 +97,13 @@ public partial class OpenAI : IAsyncDisposable
     public bool ShowOptions { get; set; } = true;
 
     /// <summary>
-    /// 语音识别/合成
+    /// 设置/获取 是否语音识别/合成模块, 默认为 true
     /// </summary>
     [Parameter]
     public bool EnableSpeech { get; set; } = true;
 
     /// <summary>
-    /// 语音模块语言,默认中文
+    /// 设置/获取 语音合成使用的语言,默认中文普通话
     /// </summary>
     [Parameter]
     public string? SpeechLanguage { get; set; }
@@ -115,6 +120,52 @@ public partial class OpenAI : IAsyncDisposable
     [Parameter]
     public float? Temperature { get; set; }
 
+    #region SpeechRecognition
+
+    [NotNull]
+    WebSpeech? WebSpeech { get; set; }
+
+    SpeechRecognitionOption Options { get; set; } = new SpeechRecognitionOption() { Continuous = false, InterimResults = true };
+    SpeechSynthesisOption OptionsTTS { get; set; } = new SpeechSynthesisOption();
+
+    /// <summary>
+    /// 语音识别使用的语言,默认中文普通话
+    /// </summary>
+    [NotNull]
+    private EnumWebVoiceLanguage? EnumSpeechRecognLanguage { get; set; } = EnumWebVoiceLanguage.zh_CN;
+
+    /// <summary>
+    /// 语音识别使用的语言,默认中文普通话
+    /// </summary>
+    [DisplayName("识别语言")]
+    string SpeechRecognLanguage { get; set; } = "zh-CN";
+
+    /// <summary>
+    /// 语音合成使用的语言,默认中文普通话
+    /// </summary>
+    private string? PlayLanguage { get; set; }
+
+    [DisplayName("连续对话(2s)")]
+    bool SpeechRecognContinuous { get; set; } = true;
+
+    [DisplayName("识别语音后自动发送")]
+    bool AutoSent { get; set; } = true;
+
+    [DisplayName("朗读")]
+    bool AutoSpeak { get; set; } = true;
+
+
+    [DisplayName("内容")]
+    private string? SpeakText { get; set; }
+
+    List<WebVoice>? WebVoiceList { get; set; }
+
+    bool IsInited { get; set; }
+
+    private BreakPoint Size { get; set; }
+
+    #endregion
+
     public override async Task SetParametersAsync(ParameterView parameters)
     {
         if (parameters.TryGetValue<string>(nameof(OpenAIKey), out var value))
@@ -122,7 +173,7 @@ public partial class OpenAI : IAsyncDisposable
             OpenAIKey = value ?? Config["OpenAIKey"];
             OpenaiService.Init(OpenAIKey);
         }
-        _speechLanguage = SpeechLanguage ?? "zh-CN";
+        SpeechRecognLanguage = SpeechLanguage ?? "zh-CN";
         await base.SetParametersAsync(parameters);
     }
 
@@ -132,6 +183,30 @@ public partial class OpenAI : IAsyncDisposable
         if (firstRender)
         {
             Module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/BootstrapBlazor.OpenAI/app.js" + "?v=" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version);
+
+            SelectedMaxTokens = await Storage.GetValue("AiMaxTokens", SelectedMaxTokens);
+            SelectedTemperature = await Storage.GetValue("AiTemperature", SelectedTemperature);
+
+            SpeechRecognLanguage = await Storage.GetValue("SpeechRecognLanguage", SpeechRecognLanguage) ?? "zh-CN";
+
+            if (Enum.TryParse(SpeechRecognLanguage.Replace("-", "_"), out EnumWebVoiceLanguage lang))
+            {
+                EnumSpeechRecognLanguage = lang;
+            }
+
+            SpeechRecognContinuous = await Storage.GetValue("SpeechRecognContinuous", SpeechRecognContinuous);
+            AutoSent = await Storage.GetValue("SpeechAutoSent", AutoSent);
+            AutoSpeak = await Storage.GetValue("SpeechAutoSpeak", AutoSpeak);
+            Options.Continuous = await Storage.GetValue("SpeechContinuous", Options.Continuous);
+            Options.InterimResults = await Storage.GetValue("SpeechInterimResults", Options.InterimResults);
+            PlayLanguage = await Storage.GetValue("PlayLanguage", PlayLanguage);
+            OptionsTTS.Rate = await Storage.GetValue("PlayRate", OptionsTTS.Rate);
+            OptionsTTS.Picth = await Storage.GetValue("PlayPicth", OptionsTTS.Picth);
+            OptionsTTS.Volume = await Storage.GetValue("PlayVolume", OptionsTTS.Volume);
+
+            await OnAfterRenderAsyncSpeech(firstRender);
+
+            IsInited = true;
         }
     }
 
@@ -228,8 +303,8 @@ public partial class OpenAI : IAsyncDisposable
         {
             if (res.StartsWith("http"))
             {
-                var httpclient = new HttpClient();
-                var stream = await httpclient.GetStreamAsync(res);
+                //var httpclient = new HttpClient();
+                //var stream = await httpclient.GetStreamAsync(res);
 
                 ResultImage = res;
                 ResultText += (Environment.NewLine);
@@ -237,7 +312,7 @@ public partial class OpenAI : IAsyncDisposable
             else if (res != string.Empty)
             {
                 ResultText += ($"A: {res}{Environment.NewLine}");
-                if (AutoSpeak)
+                if (EnableSpeech && AutoSpeak)
                 {
                     PlaceHolderText = "沟通中...";
                     await UpdateUI();
@@ -250,7 +325,7 @@ public partial class OpenAI : IAsyncDisposable
             InputText = string.Empty;
             PlaceHolderText = "问点啥,可选模型后再问我.";
 
-            if (ContinuousConversation)
+            if (EnableSpeech && SpeechRecognContinuous)
             {
                 do
                 {
@@ -265,7 +340,7 @@ public partial class OpenAI : IAsyncDisposable
         else
         {
             PlaceHolderText = "AI开小差了. 重新问点什么吧,可选模型后再问我.";
-            if (AutoSpeak)
+            if (EnableSpeech && AutoSpeak)
             {
                 SpeakText = PlaceHolderText;
                 await SpeechSynthesis();
@@ -298,35 +373,15 @@ public partial class OpenAI : IAsyncDisposable
         return Task.CompletedTask;
     }
 
-    private Task OnClear()
+    private async Task OnClear()
     {
         ResultText = string.Empty;
         InputText = string.Empty;
         ResultImage = null;
-        return Task.CompletedTask;
+        if (EnableSpeech) await OnStop();
     }
 
     #region SpeechRecognition
-
-    [DisplayName("语言")]
-    string _speechLanguage { get; set; } = "zh-CN";
-
-    [DisplayName("连续对话(2s)")]
-    bool ContinuousConversation { get; set; } = true;
-
-    [DisplayName("识别语音后自动发送")]
-    bool AutoSent { get; set; } = true;
-
-    [DisplayName("朗读")]
-    bool AutoSpeak { get; set; } = true;
-
-    [NotNull]
-    WebSpeech? WebSpeech { get; set; }
-
-    SpeechRecognitionOption Options { get; set; } = new SpeechRecognitionOption() { Continuous = false, InterimResults = true };
-
-    [DisplayName("内容")]
-    private string? SpeakText { get; set; }
 
     private Task OnIsBusy(bool flag)
     {
@@ -355,23 +410,96 @@ public partial class OpenAI : IAsyncDisposable
     private async Task OnTalk()
     {
         PlaceHolderText = "识别语音...";
-        ResultText += ($"识别语音...{Environment.NewLine}");
+        ResultText += ($"识别语音{(SpeechRecognLanguage== "zh-CN" ? "":SpeechRecognLanguage)}...{Environment.NewLine}");
         await UpdateUI();
-        await WebSpeech.SpeechRecognition(_speechLanguage, option: Options);
+        await WebSpeech.SpeechRecognition(SpeechRecognLanguage, option: Options);
     }
 
     async Task OnStop()
     {
+        SpeechRecognContinuous = false;
         await WebSpeech.SpeechRecognitionStop();
         await SpeechStop();
     }
 
     async Task SpeechSynthesis()
     {
-        if (SpeakText != null) await WebSpeech.SpeechSynthesis(SpeakText, _speechLanguage);
+        if (SpeakText != null) await WebSpeech.SpeechSynthesis(SpeakText, OptionsTTS, SpeechRecognLanguage, PlayLanguage);
     }
 
     async Task SpeechStop() => await WebSpeech.SpeechStop();
+    async Task GetVoiceList()
+    {
+        WebVoiceList = await WebSpeech.GetVoiceList();
+        if (WebVoiceList != null && WebVoiceList.Any()) StateHasChanged();
+    }
+
+    private async void OnSelectLangChange(ChangeEventArgs val)
+    {
+        if (val?.Value != null)
+        {
+            PlayLanguage = val.Value.ToString();
+            await Storage.SetValue("PlayLanguage", PlayLanguage);
+        }
+    }
+    private async Task OnPlayLanguageChanged(SelectedItem item)
+    {
+        if (IsInited)
+        {
+            SpeechRecognLanguage = item.Value?.ToString().Replace("_", "-") ?? SpeechRecognLanguage;
+            await Storage.SetValue("SpeechRecognLanguage", SpeechRecognLanguage);
+        }
+    }
+
+    async Task OnPlay() => await WebSpeech.SpeechSynthesis(SpeakText ?? "我们一直与Blazor同行", OptionsTTS, SpeechRecognLanguage, PlayLanguage ?? WebVoiceList?.FirstOrDefault()?.VoiceURI);
+
+    protected async Task OnAfterRenderAsyncSpeech(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            await Task.Delay(500);
+            await Task.Delay(1500);
+            while (WebVoiceList == null || !WebVoiceList.Any())
+            {
+                await Task.Delay(100);
+                await GetVoiceList();
+                if (WebSpeech.SpeechUndefined)
+                {
+                    return;
+                }
+            }
+        }
+    }
+    private Task OnBreakPointChanged(BreakPoint size)
+    {
+        Size = size;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+    private bool IsBackdropOpen { get; set; }
+
+    private void OpenDrawer()
+    {
+        IsBackdropOpen = !IsBackdropOpen;
+    }
+    private async Task Save()
+    {
+        IsBackdropOpen = false;
+        await Storage.SetValue("AiMaxTokens", SelectedMaxTokens);
+        await Storage.SetValue("AiTemperature", SelectedTemperature);
+        await Storage.SetValue("SpeechRecognLanguage", SpeechRecognLanguage);
+        await Storage.SetValue("SpeechRecognContinuous", SpeechRecognContinuous);
+        await Storage.SetValue("SpeechAutoSent", AutoSent);
+        await Storage.SetValue("SpeechAutoSpeak", AutoSpeak);
+        await Storage.SetValue("SpeechContinuous", Options.Continuous);
+        await Storage.SetValue("SpeechInterimResults", Options.InterimResults);
+        await Storage.SetValue("PlayLanguage", PlayLanguage);
+        await Storage.SetValue("PlayRate", OptionsTTS.Rate);
+        await Storage.SetValue("PlayPicth", OptionsTTS.Picth);
+        await Storage.SetValue("PlayVolume", OptionsTTS.Volume);
+
+    }
 
     #endregion
 
@@ -381,6 +509,7 @@ public partial class OpenAI : IAsyncDisposable
     /// <returns></returns>
     public async ValueTask DisposeAsync()
     {
+        await Save();
         if (Module is not null)
         {
             await Module.DisposeAsync();
