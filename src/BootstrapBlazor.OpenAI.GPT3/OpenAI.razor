@@ -45,7 +45,7 @@
         <Textarea ShowLabel="true" @bind-Value="InputText" placeholder="@PlaceHolderText" rows="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?1:3)" />
         <br />
         <BootstrapInputGroup>
-            <Button Text="Enter" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
+            <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Enter")" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
             <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Clear")" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
             @if (EnableSpeech)
             {
