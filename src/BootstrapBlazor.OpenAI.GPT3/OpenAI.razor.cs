@@ -154,6 +154,11 @@ public partial class OpenAI : IAsyncDisposable
     [DisplayName("朗读")]
     bool AutoSpeak { get; set; } = true;
 
+    [DisplayName("单行输入/多行输入")]
+    bool SingleLine { get; set; } = false;
+
+    [DisplayName("自适应多行输入")]
+    bool AutoMultiLine { get; set; } = true;
 
     [DisplayName("内容")]
     private string? SpeakText { get; set; }
@@ -163,6 +168,8 @@ public partial class OpenAI : IAsyncDisposable
     bool IsInited { get; set; }
 
     private BreakPoint Size { get; set; }
+
+    bool IsSpeechEnableWithClick { get; set; }
 
     #endregion
 
@@ -203,6 +210,8 @@ public partial class OpenAI : IAsyncDisposable
             OptionsTTS.Rate = await Storage.GetValue("PlayRate", OptionsTTS.Rate);
             OptionsTTS.Picth = await Storage.GetValue("PlayPicth", OptionsTTS.Picth);
             OptionsTTS.Volume = await Storage.GetValue("PlayVolume", OptionsTTS.Volume);
+            SingleLine=await Storage.GetValue("SingleLine", SingleLine);
+            AutoMultiLine=await Storage.GetValue("AutoMultiLine", AutoMultiLine);
 
             await OnAfterRenderAsyncSpeech(firstRender);
 
@@ -312,11 +321,11 @@ public partial class OpenAI : IAsyncDisposable
             else if (res != string.Empty)
             {
                 ResultText += ($"A: {res}{Environment.NewLine}");
-                if (EnableSpeech && AutoSpeak)
+                SpeakText = res;
+                if (IsSpeechEnableWithClick && EnableSpeech && AutoSpeak)
                 {
                     PlaceHolderText = "沟通中...";
                     await UpdateUI();
-                    SpeakText = res;
                     await SpeechSynthesis();
                 }
 
@@ -325,7 +334,7 @@ public partial class OpenAI : IAsyncDisposable
             InputText = string.Empty;
             PlaceHolderText = "问点啥,可选模型后再问我.";
 
-            if (EnableSpeech && SpeechRecognContinuous)
+            if (IsSpeechEnableWithClick && EnableSpeech && SpeechRecognContinuous)
             {
                 do
                 {
@@ -340,9 +349,9 @@ public partial class OpenAI : IAsyncDisposable
         else
         {
             PlaceHolderText = "AI开小差了. 重新问点什么吧,可选模型后再问我.";
-            if (EnableSpeech && AutoSpeak)
+            SpeakText = PlaceHolderText;
+            if (IsSpeechEnableWithClick && EnableSpeech && AutoSpeak)
             {
-                SpeakText = PlaceHolderText;
                 await SpeechSynthesis();
             }
         }
@@ -409,14 +418,16 @@ public partial class OpenAI : IAsyncDisposable
 
     private async Task OnTalk()
     {
+        IsSpeechEnableWithClick = true;
         PlaceHolderText = "识别语音...";
-        ResultText += ($"识别语音{(SpeechRecognLanguage== "zh-CN" ? "":SpeechRecognLanguage)}...{Environment.NewLine}");
+        ResultText += ($"识别语音{(SpeechRecognLanguage == "zh-CN" ? "" : SpeechRecognLanguage)}...{Environment.NewLine}");
         await UpdateUI();
         await WebSpeech.SpeechRecognition(SpeechRecognLanguage, option: Options);
     }
 
     async Task OnStop()
     {
+        IsSpeechEnableWithClick = false;
         SpeechRecognContinuous = false;
         await WebSpeech.SpeechRecognitionStop();
         await SpeechStop();
@@ -451,8 +462,11 @@ public partial class OpenAI : IAsyncDisposable
         }
     }
 
-    async Task OnPlay() => await WebSpeech.SpeechSynthesis(SpeakText ?? "我们一直与Blazor同行", OptionsTTS, SpeechRecognLanguage, PlayLanguage ?? WebVoiceList?.FirstOrDefault()?.VoiceURI);
-
+    async Task OnPlay()
+    {
+        IsSpeechEnableWithClick = true;
+        await WebSpeech.SpeechSynthesis(SpeakText ?? "我们一直与Blazor同行", OptionsTTS, SpeechRecognLanguage, PlayLanguage ?? WebVoiceList?.FirstOrDefault()?.VoiceURI);
+    }
     protected async Task OnAfterRenderAsyncSpeech(bool firstRender)
     {
 
@@ -477,6 +491,11 @@ public partial class OpenAI : IAsyncDisposable
         StateHasChanged();
         return Task.CompletedTask;
     }
+    private Task OnValueChanged()
+    {
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
     private bool IsBackdropOpen { get; set; }
 
     private void OpenDrawer()
@@ -498,6 +517,8 @@ public partial class OpenAI : IAsyncDisposable
         await Storage.SetValue("PlayRate", OptionsTTS.Rate);
         await Storage.SetValue("PlayPicth", OptionsTTS.Picth);
         await Storage.SetValue("PlayVolume", OptionsTTS.Volume);
+        await Storage.SetValue("SingleLine", SingleLine);
+        await Storage.SetValue("AutoMultiLine", AutoMultiLine);
 
     }
 

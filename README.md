@@ -68,6 +68,9 @@ https://blazor.app1.es/OpenAI
 v0.2
 - 添加语音识别/合成
 
+v0.3
+- 添加参数配置
+
 ---
 #### Blazor 组件
 

@@ -27,36 +27,46 @@
     </div>
     <Responsive OnBreakPointChanged="OnBreakPointChanged" />
     <div class="col-12">
-        @*@if (isSimpleText)
-            {
-                <BootstrapInputGroup>
-                    <BootstrapInput IsAutoFocus ShowLabel="true" TValue="string" PlaceHolder="@PlaceHolderText" OnEnterAsync="OnEnterAsync" OnEscAsync="OnEscAsync" @bind-Value="InputText" />
-                    <Button Text="Enter" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
-                    <Button Text="Clear" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
-                    @if (EnableSpeech && Size != BreakPoint.Small && Size != BreakPoint.ExtraSmall && Size != BreakPoint.Medium)
-                    {
-                        <Button Text="Talk" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
-                        <Button Text="Stop" OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
-                    }
-                </BootstrapInputGroup>
-            }
-            else
-            {*@
-        <Textarea ShowLabel="true" @bind-Value="InputText" placeholder="@PlaceHolderText" rows="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?1:3)" />
-        <br />
-        <BootstrapInputGroup>
-            <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Enter")" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
-            <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Clear")" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
-            @if (EnableSpeech)
-            {
-                <Button Text="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?"":"Talk")" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
-                <Button OnClick="OnPlay" Icon="fa-fw fa-solid fa-play" IsAsync />
-                <Button OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
-            }
-            <Button OnClick="OpenDrawer" Icon="fa-fw fa-solid fa-cog" />
-        </BootstrapInputGroup>
+        @if (SingleLine || (AutoMultiLine && isSimpleText))
+        {
+            <BootstrapInputGroup>
+                <BootstrapInput IsAutoFocus ShowLabel="true" TValue="string" PlaceHolder="@PlaceHolderText" OnEnterAsync="OnEnterAsync" OnEscAsync="OnEscAsync" @bind-Value="InputText" />
+                <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Enter")" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
+                <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Clear")" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
+                <Button OnClick="OpenDrawer" Icon="fa-fw fa-solid fa-cog" />
+                @if (EnableSpeech && !(Size == BreakPoint.Small || Size == BreakPoint.ExtraSmall))
+                {
+                    <Button Text="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?"":"Talk")" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
+                    <Button OnClick="OnPlay" Icon="fa-fw fa-solid fa-play" IsAsync />
+                    <Button OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
+                }
+            </BootstrapInputGroup>
+            <BootstrapInputGroup class="mt-2">
+                @if (EnableSpeech && (Size == BreakPoint.Small || Size == BreakPoint.ExtraSmall))
+                {
+                    <Button Text="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?"":"Talk")" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
+                    <Button OnClick="OnPlay" Icon="fa-fw fa-solid fa-play" IsAsync />
+                    <Button OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
+                }
+            </BootstrapInputGroup>
+        }
+        else
+        {
+            <Textarea ShowLabel="true" @bind-Value="InputText" placeholder="@PlaceHolderText" rows="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?1:3)" />
+            <br />
+            <BootstrapInputGroup>
+                <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Enter")" OnClick="OnEnter" Icon="fa-fw fa-solid fa-paper-plane" />
+                <Button Text="@(Size == BreakPoint.ExtraSmall?"":"Clear")" OnClick="OnClear" Icon="fa-fw fa-solid fa-trash" />
+                @if (EnableSpeech)
+                {
+                    <Button Text="@(Size==BreakPoint.Small || Size == BreakPoint.ExtraSmall?"":"Talk")" OnClick="OnTalk" Icon="fa-fw fa-solid fa-commenting" IsAsync />
+                    <Button OnClick="OnPlay" Icon="fa-fw fa-solid fa-play" IsAsync />
+                    <Button OnClick="OnStop" Icon="fa-fw fa-solid fa-stop" IsAsync />
+                }
+                <Button OnClick="OpenDrawer" Icon="fa-fw fa-solid fa-cog" />
+            </BootstrapInputGroup>
 
-        @* } *@
+        }
     </div>
     @if (EnableSpeech)
     {
@@ -89,6 +99,14 @@
                     </div>
                     <div class="col-12">
                         <Select Color="Color.Primary" Items="ItemsTemperature" @bind-Value="@SelectedTemperature" ShowLabel="true" DisplayText="Temperature 模型的输出的多样性" />
+                    </div>
+                </div>
+                <div class="row mt-2 g-3">
+                    <div class="col-12">
+                        <Switch ShowLabel="true" @bind-Value="@SingleLine" OnValueChanged="_=>OnValueChanged()" />
+                    </div>
+                    <div class="col-12">
+                        <Switch ShowLabel="true" @bind-Value="@AutoMultiLine" OnValueChanged="_=>OnValueChanged()"/>
                     </div>
                 </div>
             </GroupBox>
