@@ -8,7 +8,6 @@ using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using System.Security.Principal;
 
 namespace BootstrapBlazor.OpenAI.Services;
 
@@ -258,7 +257,7 @@ public class OpenaiAzureService
         api_version = api_version ?? "2022-08-03-preview";
 
         int retryAfter = 6;
-        string operationLocation="";
+        string operationLocation = "";
         var client = new HttpClient();
         var request = new HttpRequestMessage(HttpMethod.Post, $"{Endpoint}dalle/{model}?api-version={api_version}");
         request.Headers.Add("api-key", OpenAIKey);
@@ -274,14 +273,14 @@ public class OpenaiAzureService
         response.EnsureSuccessStatusCode();
         if (response.Headers.TryGetValues("Retry-After", out var retryAfters))
         {
-            retryAfter=int.Parse(retryAfters.First());
+            retryAfter = int.Parse(retryAfters.First());
         }
         if (response.Headers.TryGetValues("operation-location", out var operationLocations))
         {
-            operationLocation=operationLocations.First();
+            operationLocation = operationLocations.First();
         }
         string? status = "";
-        DALLE_response? dalle_response=null;
+        DALLE_response? dalle_response = null;
         while (status != "Succeeded")
         {
             await Task.Delay(retryAfter);
@@ -292,10 +291,10 @@ public class OpenaiAzureService
             var result = await response.Content.ReadAsStringAsync();
             dalle_response = JsonConvert.DeserializeObject<DALLE_response>(result);
             status = dalle_response?.Status ?? "";
-            Console.WriteLine (model + " " + status);
+            Console.WriteLine(model + " " + status);
         };
 
-        var url= dalle_response?.Result?.ContentUrl ;
+        var url = dalle_response?.Result?.ContentUrl;
         Console.WriteLine(url);
 
         //TODO: load image to base64
@@ -303,20 +302,20 @@ public class OpenaiAzureService
         return url;
     }
 
-    class DALLE_request
+    private class DALLE_request
     {
         public string? Caption { get; set; }
         public string? Resolution { get; set; } = "1024x1024";
     }
 
-    class DALLE_response
+    private class DALLE_response
     {
         public string? Id { get; set; }
         public string? Status { get; set; }
         public DALLE_response_result? Result { get; set; }
     }
 
-    class DALLE_response_result
+    private class DALLE_response_result
     {
         public string? ContentUrl { get; set; }
     }
